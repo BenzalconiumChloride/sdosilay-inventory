@@ -3,23 +3,23 @@ require_once '../global-library/database.php';
 // require_once '../general-library/auth.php'; // Comment out or remove this line
 // require_once '../include/config.php';
 
-if (isset($_GET['citizen-charter'])) {
-    $view = 'citizen-charter';
+if (isset($_GET['school-item'])) {
+    $view = 'school-item';
 } else {
     $view = '';
 }
 
-$currentPage = 'citizen-charter';
+$currentPage = 'school-item';
 
 switch ($view) {
-    case 'citizen-charter':
-        $content   = 'citizen-charter.php';
-        $pageTitle = 'Citizen Charter';
+    case 'school-item':
+        $content   = 'school-item.php';
+        $pageTitle = 'School Items';
         break;
 
     default:
-        $content   = 'citizen-charter.php';
-        $pageTitle = 'Citizen Charter';
+        $content   = 'school-item.php';
+        $pageTitle = 'School Items';
         break;
 }
 

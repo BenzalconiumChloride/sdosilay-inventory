@@ -19,14 +19,18 @@
     </div>
 
     <nav>
-      <div class="nav-item active">
+      <a href="<?php echo WEB_ROOT; ?>" class="nav-item <?php echo ($currentPage == 'Home') ? 'active' : ''; ?>" style="text-decoration: none; color: inherit;">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor"/></svg>
         Overview
-      </div>
-      <div class="nav-item">
+      </a>
+      <a href="<?php echo WEB_ROOT; ?>school-item/" class="nav-item <?php echo ($currentPage == 'school-item') ? 'active' : ''; ?>" style="text-decoration: none; color: inherit;">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1 1 12 0A6 6 0 0 1 2 8z" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Activity
-      </div>
+        Schoolitems
+      </a>
+      <a href="<?php echo WEB_ROOT; ?>records/" class="nav-item <?php echo ($currentPage == 'records') ? 'active' : ''; ?>" style="text-decoration: none; color: inherit;">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4h8v8H4z" stroke="currentColor" stroke-width="1.5"/><path d="M4 8h8M8 4v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Records
+      </a>
       <div class="nav-item">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 6h6M5 8h4M5 10h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
         Spreadsheets
