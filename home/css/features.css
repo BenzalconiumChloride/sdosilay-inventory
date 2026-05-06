@@ -1,0 +1,176 @@
+.feature-section {
+	background: linear-gradient(135deg, #212123 0%, #173074 100%);
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	position: relative;
+	overflow: hidden;
+}
+
+.feature-section::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: radial-gradient(circle at 20% 50%, rgba(255, 107, 129, 0.1) 0%, transparent 50%);
+	pointer-events: none;
+}
+
+.feature-title {
+	font-family: 'Great Vibes', cursive;
+	font-size: clamp(1rem, 4vw, 2.5rem);
+	background: linear-gradient(135deg, #976bff 0%, #957aff 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	margin-bottom: 2rem;
+	line-height: 1.2;
+}
+
+.feature-text {
+	color: #d8dee9;
+	font-size: clamp(0.95rem, 2vw, 1.1rem);
+	line-height: 1.8;
+	font-weight: 300;
+	margin-bottom: 2.5rem;
+	max-width: 600px;
+}
+
+.btn-explore {
+	background: linear-gradient(135deg, #726bff 0%, #998bff 100%);
+	color: white;
+	border: none;
+	padding: 14px 40px;
+	font-size: 1rem;
+	border-radius: 50px;
+	font-weight: 500;
+	transition: all 0.3s ease;
+	box-shadow: 0 8px 20px rgba(255, 107, 157, 0.3);
+	text-transform: capitalize;
+}
+
+.btn-explore:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 12px 30px rgba(127, 107, 255, 0.4);
+	background: linear-gradient(135deg, #9c8bff 0%, #706bff 100%);
+}
+
+.image-carousel {
+	position: relative;
+	max-width: 450px;
+	margin: 0 auto;
+	height: 500px;
+}
+
+.image-frame {
+	position: absolute;
+	width: 100%;
+	border-radius: 30px;
+	overflow: hidden;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+	border: 3px solid #7163c9;
+	cursor: grab;
+	transition: all 0.3s ease;
+	user-select: none;
+}
+
+.image-frame:active {
+	cursor: grabbing;
+}
+
+.image-frame img {
+	width: 100%;
+	height: 500px;
+	display: block;
+	object-fit: cover;
+	pointer-events: none;
+}
+
+/* Stacked card effect */
+.image-frame:nth-child(1) {
+	z-index: 3;
+	transform: translateY(0) scale(1);
+}
+
+.image-frame:nth-child(2) {
+	z-index: 2;
+	transform: translateY(15px) scale(0.95);
+	opacity: 0.7;
+}
+
+.image-frame:nth-child(3) {
+	z-index: 1;
+	transform: translateY(30px) scale(0.9);
+	opacity: 0.5;
+}
+
+/* Swipe indicators */
+.swipe-indicator {
+	position: absolute;
+	bottom: -40px;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	gap: 8px;
+	z-index: 10;
+}
+
+.swipe-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: rgba(255, 107, 157, 0.3);
+	transition: all 0.3s ease;
+}
+
+.swipe-dot.active {
+	background: #7a6bff;
+	width: 24px;
+	border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+	.feature-section {
+		padding: 3rem 0;
+	}
+
+	.content-wrapper {
+		text-align: center;
+	}
+
+	.feature-text {
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.image-frame {
+		margin-top: 3rem;
+		max-width: 350px;
+	}
+
+	.image-carousel {
+		max-width: 350px;
+		height: 450px;
+	}
+
+	.image-frame img {
+		height: 450px;
+	}
+}
+
+@media (max-width: 576px) {
+	.image-frame {
+		max-width: 280px;
+	}
+
+	.image-carousel {
+		max-width: 280px;
+		height: 400px;
+	}
+
+	.image-frame img {
+		height: 400px;
+	}
+}

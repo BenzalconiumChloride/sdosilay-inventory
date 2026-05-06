@@ -1,0 +1,120 @@
+.section-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #022c5c;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+            margin-bottom: 50px;
+            font-family: 'Arial Black', sans-serif;
+        }
+
+        .team-card {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(17, 0, 255, 0.4);
+        }
+
+        .team-card img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, 
+                transparent 0%, 
+                transparent 50%, 
+                rgba(0, 0, 0, 0.7) 100%);
+            pointer-events: none;
+        }
+
+        .gold-wave {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(135deg, #022c5c 0%, #2f00ff 50%, #2600ff 100%);
+            clip-path: polygon(0 0, 100% 0, 100% 60%, 0 100%);
+            opacity: 0.9;
+        }
+
+        .member-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, 
+                rgba(0, 0, 0, 0.95) 0%, 
+                rgba(0, 0, 0, 0.7) 70%,
+                transparent 100%);
+        }
+
+        .member-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e1e5e9;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            margin-bottom: 5px;
+            font-family: 'Georgia', serif;
+        }
+
+        .member-title {
+            font-size: 0.9rem;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            font-style: italic;
+        }
+
+        .gold-accent {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(135deg, #022c5c 0%, #2f00ff 50%, #2600ff 100%);
+        }
+
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 2rem;
+                margin-bottom: 30px;
+            }
+
+            .team-card img {
+                height: 350px;
+            }
+
+            .member-name {
+                font-size: 1.3rem;
+            }
+
+            .member-title {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .team-card img {
+                height: 300px;
+            }
+        }

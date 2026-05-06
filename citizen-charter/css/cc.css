@@ -1,0 +1,12 @@
+.logo-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.gov-logo {
+    width: clamp(80px, 20vw, 150px);
+    height: auto;
+    object-fit: contain;
+}
