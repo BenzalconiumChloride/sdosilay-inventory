@@ -1,0 +1,210 @@
+
+    /* ── Page background ── */
+    .iatao-page {
+     
+      background: linear-gradient(160deg, #0d2b4e 0%, #0e4d6e 40%, #1a7a8a 75%, #22a0a0 100%);
+      padding: 40px 24px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ── Card wrapper ── */
+    .iatao-wrapper {
+      --iatao-header-bg: rgba(10, 40, 70, 0.85);
+      --iatao-row-odd: rgba(255, 255, 255, 0.06);
+      --iatao-row-even: rgba(255, 255, 255, 0.02);
+      --iatao-row-hover: rgba(255, 255, 255, 0.12);
+      --iatao-border: rgba(255, 255, 255, 0.15);
+      --iatao-text: #e8f4f8;
+      --iatao-subtext: rgba(220, 240, 250, 0.75);
+      --iatao-accent: #7dd8e8;
+      --iatao-bold: #ffffff;
+
+     
+      margin: 0 auto;
+      background: rgba(10, 35, 65, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.4);
+      color: var(--iatao-text);
+    }
+
+    /* ── Title ── */
+    .iatao-doc-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--iatao-accent);
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      opacity: 0.95;
+    }
+
+    /* ── Meta lines ── */
+    .iatao-meta-line {
+      font-size: 12.5px;
+      color: var(--iatao-subtext);
+      margin-bottom: 6px;
+      line-height: 1.7;
+    }
+
+    .iatao-meta-line strong {
+      font-weight: 700;
+      color: var(--iatao-bold);
+    }
+
+    .iatao-underline-value {
+      display: inline-block;
+      border-bottom: 1.5px solid var(--iatao-accent);
+      min-width: 260px;
+      padding-bottom: 2px;
+      font-weight: 700;
+      color: var(--iatao-bold);
+    }
+
+    /* ── Table container ── */
+    .iatao-table-container {
+      margin-top: 28px;
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--iatao-border);
+    }
+
+    /* ── Table ── */
+    .iatao-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    /* ── Header ── */
+    .iatao-table thead tr th {
+      background: var(--iatao-header-bg);
+      border-bottom: 2px solid rgba(125, 216, 232, 0.4);
+      border-right: 1px solid var(--iatao-border);
+      text-align: center;
+      vertical-align: middle;
+      font-weight: 700;
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 11px 8px;
+      color: var(--iatao-accent);
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+
+    .iatao-table thead tr th:last-child {
+      border-right: none;
+    }
+
+    /* sort icon hint */
+    .iatao-table thead tr th .iatao-sort-icon {
+      display: inline-block;
+      margin-left: 4px;
+      opacity: 0.5;
+      font-size: 9px;
+      vertical-align: middle;
+    }
+
+    /* ── Body rows ── */
+    .iatao-table tbody tr td {
+      border-bottom: 1px solid var(--iatao-border);
+      border-right: 1px solid rgba(255,255,255,0.07);
+      vertical-align: middle;
+      padding: 10px 10px;
+      font-size: 11.5px;
+      line-height: 1.5;
+      color: var(--iatao-text);
+      transition: background 0.15s ease;
+    }
+
+    .iatao-table tbody tr td:last-child {
+      border-right: none;
+    }
+
+    .iatao-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* alternating rows */
+    .iatao-table tbody tr:nth-child(odd) td {
+      background: var(--iatao-row-odd);
+    }
+
+    .iatao-table tbody tr:nth-child(even) td {
+      background: var(--iatao-row-even);
+    }
+
+    .iatao-table tbody tr:hover td {
+      background: var(--iatao-row-hover);
+    }
+
+    /* ── Column alignment helpers ── */
+    .iatao-table tbody tr td.iatao-article-col {
+      text-align: center;
+      font-weight: 700;
+      font-size: 10.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--iatao-accent);
+    }
+
+    .iatao-table tbody tr td.iatao-desc-col {
+      font-size: 11px;
+      line-height: 1.6;
+      min-width: 200px;
+    }
+
+    .iatao-item-name {
+      font-weight: 700;
+      font-size: 11.5px;
+      color: var(--iatao-bold);
+    }
+
+    .iatao-table tbody tr td.iatao-center-col {
+      text-align: center;
+    }
+
+    .iatao-table tbody tr td.iatao-right-col {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .iatao-shortage-header {
+      border-bottom: 1px solid var(--iatao-border) !important;
+    }
+
+    .iatao-table tbody tr.iatao-blank-row td {
+      height: 36px;
+    }
+
+    .iatao-remarks-col {
+      font-size: 10.5px;
+      text-align: center;
+      color: var(--iatao-accent);
+      font-weight: 500;
+    }
+
+    /* ── Divider between header meta and table ── */
+    .iatao-divider {
+      border: none;
+      border-top: 1px solid rgba(125, 216, 232, 0.2);
+      margin: 20px 0 0;
+    }
+
+    @media print {
+      .iatao-page { background: white; padding: 0; }
+      .iatao-wrapper {
+        background: white;
+        box-shadow: none;
+        border: none;
+        color: #000;
+        backdrop-filter: none;
+      }
+      .iatao-table tbody tr td,
+      .iatao-table thead tr th { color: #000 !important; border-color: #999 !important; }
+    }

@@ -20,10 +20,7 @@
             <i class="bi bi-boxes" style="width: 20px; text-align: center; font-size: 16px;"></i>
             School Items
           </a>
-          <a href="<?php echo WEB_ROOT; ?>records/" class="nav-item <?php echo ($currentPage == 'records') ? 'active' : ''; ?>" style="text-decoration: none; color: inherit; padding: 12px 10px;">
-            <i class="bi bi-clipboard2-data" style="width: 20px; text-align: center; font-size: 16px;"></i>
-            Records
-          </a>
+         
       </div>
       
       <div style="margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border);">

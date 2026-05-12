@@ -58,45 +58,19 @@
 
     <li>
 
-        <a href="<?=  WEB_ROOT; ?>admin/upcoming-events/">
+        <a href="<?=  WEB_ROOT; ?>admin/school-items/">
 
-            <div class="parent-icon"><i class='bx bx-calendar-week'></i>
+            <div class="parent-icon"><i class='bx bx-box'></i>
 
             </div>
 
-            <div class="menu-title">Upcoming Events</div>
+            <div class="menu-title">School Items</div>
 
         </a>
 
     </li>
 
-    <li>
-
-        <a href="<?=  WEB_ROOT; ?>admin/rqa/">
-
-            <div class="parent-icon"><i class='bx bx-user-check'></i>
-
-            </div>
-
-            <div class="menu-title">RQA</div>
-
-        </a>
-
-    </li>
-
-    <li>
-
-        <a href="<?=  WEB_ROOT; ?>admin/features/">
-
-            <div class="parent-icon"><i class='bx bx-credit-card-front'></i>
-
-            </div>
-
-            <div class="menu-title">Features</div>
-
-        </a>
-
-    </li>
+   
 
     
 

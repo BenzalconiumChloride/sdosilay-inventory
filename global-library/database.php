@@ -18,7 +18,7 @@ $today_time = date("H");
 $today_a = date("a");
 
 // database connection config
-$dbHost = '127.0.0.1';
+$dbHost = 'localhost';
 $dbUser = 'root';
 $dbPass = '';
 $dbName = 'db_inventory';
