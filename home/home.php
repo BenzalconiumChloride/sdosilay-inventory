@@ -1,217 +1,395 @@
+<?php
+// Initialize database connection if not already available
+global $conn;
 
+// Condition to check if logged in as school or global admin
+$where_clause = "is_deleted = 0";
+$params = [];
 
-        <!-- Page Header -->
-        <div class="page-header">
-          <h1 class="page-title">Overview</h1>
-          <div class="header-actions">
-            <button class="pill-btn active">1 month</button>
-            <button class="pill-btn">6 month</button>
-            <button class="pill-btn">Custom</button>
-            <button class="btn-download">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v7M4 6l3 3 3-3M2 11h10" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Download
-            </button>
-          </div>
+if (isset($_SESSION['school_id'])) {
+    $where_clause .= " AND s_id = ?";
+    $params[] = $_SESSION['school_id'];
+}
+
+// Total Items
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM tbl_schoolitems WHERE $where_clause");
+$stmt->execute($params);
+$total_items = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+// Items by Status
+$stmt = $conn->prepare("SELECT si_status, COUNT(*) as count FROM tbl_schoolitems WHERE $where_clause GROUP BY si_status");
+$stmt->execute($params);
+$status_counts = [];
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $status_counts[$row['si_status']] = $row['count'];
+}
+
+// Items by Property Type
+$stmt = $conn->prepare("SELECT si_propertyType, COUNT(*) as count FROM tbl_schoolitems WHERE $where_clause GROUP BY si_propertyType");
+$stmt->execute($params);
+$type_counts = [];
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $type_counts[$row['si_propertyType']] = $row['count'];
+}
+
+// Helper to get nice colors for status
+function getDashboardStatusStyle($status) {
+    switch (strtolower(trim($status))) {
+        case 'serviceable': return ['bg' => '#dcfce7', 'color' => '#166534', 'icon' => 'bi-check-circle'];
+        case 'transferred': return ['bg' => '#fef9c3', 'color' => '#854d0e', 'icon' => 'bi-arrow-left-right'];
+        case 'stolen': return ['bg' => '#fee2e2', 'color' => '#991b1b', 'icon' => 'bi-incognito'];
+        case 'lost': return ['bg' => '#fee2e2', 'color' => '#991b1b', 'icon' => 'bi-question-circle'];
+        case 'damaged due to calamity': return ['bg' => '#ffedd5', 'color' => '#9a3412', 'icon' => 'bi-house-dash'];
+        case 'for disposal': return ['bg' => '#f1f5f9', 'color' => '#475569', 'icon' => 'bi-trash'];
+        case 'disposed': return ['bg' => '#e2e8f0', 'color' => '#334155', 'icon' => 'bi-trash3'];
+        case 'donated': return ['bg' => '#dbeafe', 'color' => '#1e40af', 'icon' => 'bi-gift'];
+        default: return ['bg' => '#f1f5f9', 'color' => '#475569', 'icon' => 'bi-info-circle'];
+    }
+}
+
+// Define some standard statuses so they show up even if 0
+$standard_statuses = ['Serviceable', 'Transferred', 'Lost', 'Stolen', 'Damaged due to calamity', 'For disposal', 'Disposed', 'Donated'];
+?>
+<style>
+/* Dashboard Styles */
+.dashboard-container {
+    padding: 20px 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.header-actions .btn-download {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.header-actions .btn-download:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* Overview Cards */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.metric-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #f1f5f9;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card .icon-wrapper {
+    position: absolute;
+    right: -10px;
+    top: -10px;
+    font-size: 80px;
+    opacity: 0.04;
+    color: #0f172a;
+    transition: transform 0.3s ease;
+}
+
+.metric-card:hover .icon-wrapper {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.metric-title {
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.metric-primary {
+    background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+    color: white;
+    border: none;
+}
+.metric-primary .metric-title, .metric-primary .metric-value {
+    color: white;
+}
+.metric-primary .icon-wrapper {
+    color: white;
+    opacity: 0.1;
+}
+
+/* Two Column Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card-panel {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f1f5f9;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Status Breakdown */
+.status-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.status-item:hover {
+    transform: scale(1.02);
+    border-color: #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.status-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-right: 16px;
+}
+
+.status-info {
+    flex-grow: 1;
+}
+
+.status-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 4px;
+}
+
+.status-count {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+/* Item Type Breakdown */
+.type-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.type-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.type-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.type-name { color: #334155; }
+.type-count { color: #0f172a; font-weight: 700; }
+
+.type-bar-bg {
+    width: 100%;
+    height: 8px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.type-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    transition: width 1s ease-out;
+}
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Overview</h1>
+        <div class="header-actions">
+            <a href="<?php echo WEB_ROOT; ?>home/export_excel.php" class="btn-download" style="text-decoration: none;">
+                <i class="bi bi-file-earmark-excel"></i> Download Excel
+            </a>
+        </div>
+    </div>
+
+    <!-- High Level Metrics -->
+    <div class="metrics-grid">
+        <div class="metric-card metric-primary">
+            <div class="icon-wrapper"><i class="bi bi-boxes"></i></div>
+            <div class="metric-title">Total Inventory Items</div>
+            <div class="metric-value"><?php echo number_format($total_items); ?></div>
+        </div>
+        <div class="metric-card">
+            <div class="icon-wrapper"><i class="bi bi-check-circle"></i></div>
+            <div class="metric-title">Serviceable Items</div>
+            <div class="metric-value"><?php echo number_format($status_counts['Serviceable'] ?? 0); ?></div>
+        </div>
+        <div class="metric-card">
+            <div class="icon-wrapper"><i class="bi bi-exclamation-triangle"></i></div>
+            <div class="metric-title">Damaged / Needs Attention</div>
+            <div class="metric-value">
+                <?php 
+                $attention_count = ($status_counts['Damaged due to calamity'] ?? 0) + ($status_counts['Lost'] ?? 0) + ($status_counts['Stolen'] ?? 0);
+                echo number_format($attention_count); 
+                ?>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Status Breakdown -->
+        <div class="card-panel">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="bi bi-pie-chart" style="color:#3b82f6;"></i>
+                    Items by Status
+                </div>
+            </div>
+            
+            <div class="status-list">
+                <?php 
+                // Merge database counts with standard statuses
+                $all_statuses = array_unique(array_merge($standard_statuses, array_keys($status_counts)));
+                foreach ($all_statuses as $status) {
+                    if (empty($status)) continue;
+                    $count = $status_counts[$status] ?? 0;
+                    $style = getDashboardStatusStyle($status);
+                ?>
+                <div class="status-item" style="background-color: <?php echo $style['bg']; ?>33;">
+                    <div class="status-icon" style="background-color: <?php echo $style['bg']; ?>; color: <?php echo $style['color']; ?>;">
+                        <i class="bi <?php echo $style['icon']; ?>"></i>
+                    </div>
+                    <div class="status-info">
+                        <div class="status-name"><?php echo htmlspecialchars($status); ?></div>
+                        <div class="status-count"><?php echo number_format($count); ?></div>
+                    </div>
+                </div>
+                <?php } ?>
+            </div>
         </div>
 
-        <!-- Promo Banner -->
-        <div class="promo-banner">
-          <!-- Background circles -->
-          <div class="promo-circle" style="width:220px;height:220px;right:-40px;top:-60px;"></div>
-          <div class="promo-circle" style="width:140px;height:140px;right:100px;bottom:-50px;"></div>
-          <div class="promo-circle" style="width:80px;height:80px;right:200px;top:20px;opacity:0.06;"></div>
-          <!-- Coins -->
-          <div class="promo-coins">
-            <div class="coin" style="background:#f59e0b;color:#7c3a00;">₿</div>
-            <div class="coin" style="background:#6366f1;color:#fff;margin-left:20px;">$</div>
-            <div class="coin" style="background:#22c55e;color:#fff;margin-left:8px;width:28px;height:28px;font-size:13px;">◈</div>
-          </div>
-          <div class="promo-text">
-            <h2>Unlimited Cashback</h2>
-            <p>Instant 2% back on all your spend to your account</p>
-            <button class="btn-promo">
-              Download App
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-          </div>
+        <!-- Property Type Breakdown -->
+        <div class="card-panel">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="bi bi-tags" style="color:#10b981;"></i>
+                    Property Types
+                </div>
+            </div>
+
+            <div class="type-list">
+                <?php 
+                if (empty($type_counts)) {
+                    echo "<p style='color:#64748b; text-align:center;'>No data available.</p>";
+                } else {
+                    // Sort descending by count
+                    arsort($type_counts);
+                    foreach ($type_counts as $type => $count) {
+                        if (empty($type)) $type = "Uncategorized";
+                        $percentage = $total_items > 0 ? ($count / $total_items) * 100 : 0;
+                        
+                        // Randomize slightly the colors or use a fixed gradient
+                        $bar_gradient = "linear-gradient(90deg, #3b82f6, #60a5fa)";
+                        if ($type == 'Equipment') $bar_gradient = "linear-gradient(90deg, #10b981, #34d399)";
+                        if ($type == 'Furniture') $bar_gradient = "linear-gradient(90deg, #f59e0b, #fbbf24)";
+                        if ($type == 'Technology') $bar_gradient = "linear-gradient(90deg, #8b5cf6, #a78bfa)";
+                ?>
+                <div class="type-item">
+                    <div class="type-header">
+                        <span class="type-name"><?php echo htmlspecialchars($type); ?></span>
+                        <span class="type-count"><?php echo number_format($count); ?></span>
+                    </div>
+                    <div class="type-bar-bg">
+                        <div class="type-bar-fill" style="width: <?php echo $percentage; ?>%; background: <?php echo $bar_gradient; ?>;"></div>
+                    </div>
+                </div>
+                <?php 
+                    }
+                } 
+                ?>
+            </div>
         </div>
-
-        <!-- Bitcoin Chart -->
-        <div class="chart-card">
-          <div class="chart-header">
-            <div>
-              <div class="chart-label">Bitcoin (BTC)</div>
-              <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
-                <span class="chart-value">$32,450.10</span>
-                <span class="chart-badge">
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 8V2M2 5l3-3 3 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  3.1%
-                </span>
-              </div>
-            </div>
-            <button class="chart-expand">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5V2h3M9 2h3v3M12 9v3H9M5 12H2V9" stroke="#8b8fa8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-          </div>
-
-          <!-- SVG Line Chart -->
-          <div class="chart-svg-wrap">
-            <svg viewBox="0 0 700 160" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Area fill -->
-              <defs>
-                <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.18"/>
-                  <stop offset="100%" stop-color="#4f46e5" stop-opacity="0"/>
-                </linearGradient>
-              </defs>
-              <!-- Area -->
-              <path d="M0,130 C30,125 60,120 90,115 C120,110 150,118 180,112 C210,106 240,100 270,94 C300,88 330,80 360,72 C390,64 420,62 450,58 C480,54 510,56 540,50 C570,44 600,40 630,36 C660,32 680,30 700,28 L700,160 L0,160 Z"
-                    fill="url(#areaGrad)"/>
-              <!-- Line -->
-              <path d="M0,130 C30,125 60,120 90,115 C120,110 150,118 180,112 C210,106 240,100 270,94 C300,88 330,80 360,72 C390,64 420,62 450,58 C480,54 510,56 540,50 C570,44 600,40 630,36 C660,32 680,30 700,28"
-                    stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round"/>
-              <!-- Vertical dashed line at tooltip -->
-              <line x1="364" y1="0" x2="364" y2="160" stroke="#4f46e5" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>
-              <!-- Bar chart at bottom -->
-              <g opacity="0.25">
-                <rect x="10"  y="140" width="8" height="20" rx="2" fill="#4f46e5"/>
-                <rect x="30"  y="135" width="8" height="25" rx="2" fill="#4f46e5"/>
-                <rect x="50"  y="138" width="8" height="22" rx="2" fill="#4f46e5"/>
-                <rect x="70"  y="132" width="8" height="28" rx="2" fill="#4f46e5"/>
-                <rect x="90"  y="136" width="8" height="24" rx="2" fill="#4f46e5"/>
-                <rect x="110" y="130" width="8" height="30" rx="2" fill="#4f46e5"/>
-                <rect x="130" y="134" width="8" height="26" rx="2" fill="#4f46e5"/>
-                <rect x="150" y="128" width="8" height="32" rx="2" fill="#4f46e5"/>
-                <rect x="170" y="133" width="8" height="27" rx="2" fill="#4f46e5"/>
-                <rect x="190" y="126" width="8" height="34" rx="2" fill="#4f46e5"/>
-                <rect x="210" y="131" width="8" height="29" rx="2" fill="#4f46e5"/>
-                <rect x="230" y="125" width="8" height="35" rx="2" fill="#4f46e5"/>
-                <rect x="250" y="129" width="8" height="31" rx="2" fill="#4f46e5"/>
-                <rect x="270" y="122" width="8" height="38" rx="2" fill="#4f46e5"/>
-                <rect x="290" y="127" width="8" height="33" rx="2" fill="#4f46e5"/>
-                <rect x="310" y="120" width="8" height="40" rx="2" fill="#4f46e5"/>
-                <rect x="330" y="124" width="8" height="36" rx="2" fill="#4f46e5"/>
-                <rect x="350" y="118" width="8" height="42" rx="2" fill="#4f46e5"/>
-                <rect x="370" y="122" width="8" height="38" rx="2" fill="#818cf8"/>
-                <rect x="390" y="116" width="8" height="44" rx="2" fill="#4f46e5"/>
-                <rect x="410" y="120" width="8" height="40" rx="2" fill="#4f46e5"/>
-                <rect x="430" y="113" width="8" height="47" rx="2" fill="#4f46e5"/>
-                <rect x="450" y="117" width="8" height="43" rx="2" fill="#4f46e5"/>
-                <rect x="470" y="110" width="8" height="50" rx="2" fill="#4f46e5"/>
-                <rect x="490" y="115" width="8" height="45" rx="2" fill="#4f46e5"/>
-                <rect x="510" y="108" width="8" height="52" rx="2" fill="#4f46e5"/>
-                <rect x="530" y="112" width="8" height="48" rx="2" fill="#4f46e5"/>
-                <rect x="550" y="105" width="8" height="55" rx="2" fill="#4f46e5"/>
-                <rect x="570" y="109" width="8" height="51" rx="2" fill="#4f46e5"/>
-                <rect x="590" y="102" width="8" height="58" rx="2" fill="#4f46e5"/>
-                <rect x="610" y="106" width="8" height="54" rx="2" fill="#4f46e5"/>
-                <rect x="630" y="99"  width="8" height="61" rx="2" fill="#4f46e5"/>
-                <rect x="650" y="103" width="8" height="57" rx="2" fill="#4f46e5"/>
-                <rect x="670" y="96"  width="8" height="64" rx="2" fill="#4f46e5"/>
-              </g>
-            </svg>
-            <div class="chart-tooltip">$32450.10</div>
-            <div class="chart-dot"></div>
-          </div>
-
-          <!-- Range selectors -->
-          <div class="chart-range">
-            <button class="range-btn active">24H</button>
-            <button class="range-btn">1W</button>
-            <button class="range-btn">1Y</button>
-            <button class="range-btn">5Y</button>
-            <button class="range-btn">All</button>
-          </div>
-        </div>
-
-        <!-- Bottom Grid -->
-        <div class="bottom-grid">
-
-          <!-- My Pocked Plans -->
-          <div class="plans-card">
-            <div class="section-header">
-              <div class="section-title">
-                My Pocked Plans
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#8b8fa8" stroke-width="1.3"/><path d="M7 5v2.5M7 9v.5" stroke="#8b8fa8" stroke-width="1.3" stroke-linecap="round"/></svg>
-              </div>
-              <span class="see-more">See more</span>
-            </div>
-            <div class="plans-grid">
-              <div class="plan-item">
-                <div class="plan-icon">🚗</div>
-                <div class="plan-name">New Car</div>
-                <div class="plan-amount">$5,000.00</div>
-              </div>
-              <div class="plan-item">
-                <div class="plan-icon">🎮</div>
-                <div class="plan-name">New Console</div>
-                <div class="plan-amount">$5,000.00</div>
-              </div>
-              <div class="plan-item">
-                <div class="plan-icon">🏠</div>
-                <div class="plan-name">New House</div>
-                <div class="plan-amount">$50,000.00</div>
-              </div>
-              <div class="plan-item">
-                <div class="plan-icon">✈️</div>
-                <div class="plan-name">Vacation</div>
-                <div class="plan-amount">$3,200.00</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Income Analysis -->
-          <div class="income-card">
-            <div class="section-header">
-              <div class="section-title">
-                Income Analysis
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#8b8fa8" stroke-width="1.3"/><path d="M7 5v2.5M7 9v.5" stroke="#8b8fa8" stroke-width="1.3" stroke-linecap="round"/></svg>
-              </div>
-              <select class="income-filter">
-                <option>Monthly</option>
-                <option>Weekly</option>
-                <option>Yearly</option>
-              </select>
-            </div>
-            <div class="income-value">$8,527,224</div>
-            <div>
-              <span class="income-badge">▲ +3.1%</span>
-              <span class="income-compare">VS This Month</span>
-            </div>
-            <!-- Bar Chart -->
-            <div class="bar-chart-wrap">
-              <div class="bar-group">
-                <div class="bar primary" style="height:40px;"></div>
-                <div class="bar light"   style="height:55px;"></div>
-              </div>
-              <div class="bar-group">
-                <div class="bar primary" style="height:30px;"></div>
-                <div class="bar light"   style="height:45px;"></div>
-              </div>
-              <div class="bar-group">
-                <div class="bar primary" style="height:60px;"></div>
-                <div class="bar light"   style="height:75px;"></div>
-              </div>
-              <div class="bar-group">
-                <div class="bar primary" style="height:45px;"></div>
-                <div class="bar light"   style="height:60px;"></div>
-              </div>
-              <div class="bar-group">
-                <div class="bar primary" style="height:70px;"></div>
-                <div class="bar light"   style="height:85px;"></div>
-              </div>
-              <div class="bar-group">
-                <div class="bar primary" style="height:50px;"></div>
-                <div class="bar light"   style="height:65px;"></div>
-              </div>
-              <div class="bar-group">
-                <div class="bar primary" style="height:80px;"></div>
-                <div class="bar light"   style="height:90px;"></div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </main>
+    </div>
+</div></main>
 
       
