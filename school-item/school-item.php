@@ -1,62 +1,97 @@
 <link rel="stylesheet" href="<?php echo WEB_ROOT; ?>school-item/css/school-item.css">
 
+
 <section class="content-section" id="content">
-    <h2><i class="fas fa-plus-circle"></i> School Items</h2>
-    <div id="alertMessage"></div>
-
-    <!-- Table -->
-    <div class="table-container mt-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
-            <h5 class="mb-0"><i class="fas fa-list"></i> School Items</h5>
-            <div class="d-flex gap-2 flex-grow-1 justify-content-md-end">
-                <div class="input-group" style="max-width: 400px;">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Search item, property no, serial no, status...">
-                </div>
-                <button class="btn btn-success text-nowrap" onclick="exportToExcel()">
-                    <i class="fas fa-file-excel"></i> Export
-                </button>
-                <button class="btn btn-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    <i class="fas fa-plus"></i> Add Item
-                </button>
-            </div>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle" id="schoolItemsTable">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Item Name</th>
-                        <th>Description</th>
-                        <th>Property No.</th>
-                        <th>Serial No.</th>
-                        <th>ICS No.</th>
-                        <th>Property Type</th>
-                        <th>Fund Cluster</th>
-                        <th>Unit of Measure</th>
-                        <th>Unit Value</th>
-                        <th>Property Card No.</th>
-                        <th>Physical Count No.</th>
-                        <th>Shortage/Overage Quantity</th>
-                        <th>Shortage/Overage Value</th>
-                        <th>Issued By</th>
-                        <th>Date Issued</th>
-                        <th>Date Received</th>
-                        <th>Status</th>
-                        <th>Notes</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="schoolItemsTableBody">
-                    <tr>
-                        <td colspan="20" class="text-center text-muted py-3">Loading items...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+ 
+  <!-- Alert area -->
+  <div id="alertMessage"></div>
+ 
+  <!-- Page heading -->
+  <div class="page-heading">
+    <div class="page-heading-icon">
+      <i class="fas fa-boxes-stacked"></i>
     </div>
+    <div>
+      <h2>School Items</h2>
+      <p>Manage and track all school property records</p>
+    </div>
+  </div>
+ 
+  <!-- Table card -->
+  <div class="table-card">
+ 
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+      <div class="toolbar-left">
+        <input type="text" id="filterArticle"     class="form-control form-control-sm" placeholder="Article / Item">
+        <input type="text" id="filterPropertyNo"  class="form-control form-control-sm" placeholder="Property Number">
+        <input type="text" id="filterSerialNo"    class="form-control form-control-sm" placeholder="Serial Number">
+        <input type="text" id="filterIcsNo"       class="form-control form-control-sm" placeholder="ICS Number">
+        <input type="text" id="filterFundCluster" class="form-control form-control-sm" placeholder="Fund Cluster">
+        <input type="text" id="filterPropertyType"class="form-control form-control-sm" placeholder="Property Type">
+      </div>
+      <div class="toolbar-right">
+        <button class="btn-export" onclick="exportToExcel()">
+          <i class="fas fa-file-excel"></i> Export
+        </button>
+        <button class="btn-add" data-bs-toggle="modal" data-bs-target="#exampleModal">
+          <i class="fas fa-plus"></i> Add item
+        </button>
+      </div>
+    </div>
+ 
+    <!-- Table -->
+    <div class="table-scroll">
+      <table id="schoolItemsTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Item Name</th>
+            <th>Description</th>
+            <th>Property No.</th>
+            <th>Serial No.</th>
+            <th>ICS No.</th>
+            <th>Property Type</th>
+            <th>Fund Cluster</th>
+            <th>Unit</th>
+            <th>Unit Value</th>
+            <th>Card No.</th>
+            <th>Physical Count</th>
+            <th>Shortage / Overage Qty</th>
+            <th>Shortage / Overage Val</th>
+            <th>Issued By</th>
+            <th>Date Issued</th>
+            <th>Date Received</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="schoolItemsTableBody">
+          <tr>
+            <td colspan="20" class="text-center td-muted py-4">
+              <i class="fas fa-spinner fa-spin me-2"></i> Loading items…
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+ 
+    <!-- Footer / Pagination -->
+    <div class="table-footer">
+      <span id="recordCount">Showing 0 records</span>
+      <div class="pagination-btns" id="paginationContainer">
+        <button class="page-btn"><i class="fas fa-chevron-left" style="font-size:11px"></i></button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn"><i class="fas fa-chevron-right" style="font-size:11px"></i></button>
+      </div>
+    </div>
+ 
+  </div><!-- /.table-card -->
+ 
 </section>
-
 
 <!-- ─── ADD ITEM MODAL ──────────────────────────────────────────────────────── -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
@@ -353,10 +388,11 @@ function getStatusBadge(status) {
 }
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
+
 let allSchoolItems = [];
 let currentFilteredItems = [];
 
-// ─── LOAD & RENDER ────────────────────────────────────────────────────────────
+// ─── LOAD ─────────────────────────────────────────────────────────────────────
 
 function loadSchoolItems() {
     const tbody = document.getElementById('schoolItemsTableBody');
@@ -378,26 +414,36 @@ function loadSchoolItems() {
         });
 }
 
+// ─── FILTERS ──────────────────────────────────────────────────────────────────
+
 function applyFilters() {
-    const query = document.getElementById('searchInput').value.toLowerCase();
-    
+    const article      = document.getElementById('filterArticle').value.trim().toLowerCase();
+    const propertyNo   = document.getElementById('filterPropertyNo').value.trim().toLowerCase();
+    const serialNo     = document.getElementById('filterSerialNo').value.trim().toLowerCase();
+    const icsNo        = document.getElementById('filterIcsNo').value.trim().toLowerCase();
+    const fundCluster  = document.getElementById('filterFundCluster').value.trim().toLowerCase();
+    const propertyType = document.getElementById('filterPropertyType').value.trim().toLowerCase();
+
     currentFilteredItems = allSchoolItems.filter(item => {
-        if (!query) return true;
-        
-        const itemName = (item.si_item || '').toLowerCase();
-        const propertyNo = (item.si_propertyNo || '').toLowerCase();
-        const serialNo = (item.si_serialNo || '').toLowerCase();
-        const status = (item.si_status || '').toLowerCase();
-        const propertyType = (item.si_propertyType || '').toLowerCase();
-        
-        return itemName.includes(query) || 
-               propertyNo.includes(query) || 
-               serialNo.includes(query) || 
-               status.includes(query) || 
-               propertyType.includes(query);
+        return (
+            (!article      || (item.si_item         ?? '').toLowerCase().includes(article))      &&
+            (!propertyNo   || (item.si_propertyNo   ?? '').toLowerCase().includes(propertyNo))   &&
+            (!serialNo     || (item.si_serialNo     ?? '').toLowerCase().includes(serialNo))     &&
+            (!icsNo        || (item.si_icsNo        ?? '').toLowerCase().includes(icsNo))        &&
+            (!fundCluster  || (item.si_fundCluster  ?? '').toLowerCase().includes(fundCluster))  &&
+            (!propertyType || (item.si_propertyType ?? '').toLowerCase().includes(propertyType))
+        );
     });
-    
+
     renderSchoolItems(currentFilteredItems);
+}
+
+function bindFilters() {
+    ['filterArticle', 'filterPropertyNo', 'filterSerialNo',
+     'filterIcsNo', 'filterFundCluster', 'filterPropertyType']
+        .forEach(id => {
+            document.getElementById(id).addEventListener('input', applyFilters);
+        });
 }
 
 // ─── EXPORT TO EXCEL ──────────────────────────────────────────────────────────
@@ -409,14 +455,13 @@ function exportToExcel() {
     }
 
     const headers = [
-        "Item Name", "Description", "Property No.", "Serial No.", "ICS No.", 
-        "Property Type", "Fund Cluster", "Unit of Measure", "Unit Value", 
-        "Property Card No.", "Physical Count No.", "Shortage/Overage Quantity", "Shortage/Overage Value", 
+        "Item Name", "Description", "Property No.", "Serial No.", "ICS No.",
+        "Property Type", "Fund Cluster", "Unit of Measure", "Unit Value",
+        "Property Card No.", "Physical Count No.", "Shortage/Overage Quantity", "Shortage/Overage Value",
         "Issued By", "Date Issued", "Date Received", "Status", "Notes"
     ];
 
-    const csvRows = [];
-    csvRows.push(headers.join(','));
+    const csvRows = [headers.join(',')];
 
     for (const item of currentFilteredItems) {
         const values = [
@@ -426,7 +471,6 @@ function exportToExcel() {
             item.si_issuedBy, item.si_dateIssued, item.si_dateReceived, item.si_status, item.si_notes
         ];
 
-        // Escape comma, quotes, and newlines
         const escapedValues = values.map(val => {
             if (val === null || val === undefined) return '""';
             let str = String(val);
@@ -439,10 +483,8 @@ function exportToExcel() {
         csvRows.push(escapedValues.join(','));
     }
 
-    const csvData = csvRows.join('\r\n');
-    const blob = new Blob(["\uFEFF" + csvData], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    
+    const blob = new Blob(["\uFEFF" + csvRows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
     link.setAttribute("download", "school_items_export.csv");
@@ -451,9 +493,13 @@ function exportToExcel() {
     document.body.removeChild(link);
 }
 
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+
 function renderSchoolItems(items) {
     const tbody = document.getElementById('schoolItemsTableBody');
     tbody.innerHTML = '';
+
+    document.getElementById('recordCount').textContent = `Showing ${items.length} record(s)`;
 
     if (items.length === 0) {
         tbody.innerHTML = `<tr><td colspan="20" class="text-center text-muted py-3">No items found.</td></tr>`;
@@ -484,7 +530,7 @@ function renderSchoolItems(items) {
                 <td>${item.si_notes ?? '—'}</td>
                 <td>
                     <button class="btn btn-light btn-sm" onclick="editSchoolItem(${item.si_id})">
-                       <i class="bi bi-pencil-square">Edit</i>
+                        <i class="bi bi-pencil-square"></i> Edit
                     </button>
                 </td>
             </tr>`;
@@ -556,25 +602,25 @@ function editSchoolItem(id) {
 
             const item = data.data;
 
-            document.getElementById('e_si_id').value          = item.si_id              ?? '';
-            document.getElementById('e_propertyNo').value     = item.si_propertyNo      ?? '';
-            document.getElementById('e_serialNo').value       = item.si_serialNo        ?? '';
-            document.getElementById('e_icsNo').value          = item.si_icsNo           ?? '';
-            document.getElementById('e_item').value           = item.si_item            ?? '';
-            document.getElementById('e_description').value    = item.si_description     ?? '';
-            document.getElementById('e_uMeasurement').value   = item.si_uMeasurement    ?? '';
-            document.getElementById('e_uValue').value         = item.si_uValue          ?? '';
-            document.getElementById('e_propertyCardNo').value = item.si_propertyCardNo  ?? '';
-            document.getElementById('e_physicalCountNo').value= item.si_physicalCountNo ?? '';
-            document.getElementById('e_SOQuantity').value     = item.si_SOQuantity      ?? '';
-            document.getElementById('e_SOValue').value        = item.si_SOValue         ?? '';
-            document.getElementById('e_issuedBy').value       = item.si_issuedBy        ?? '';
-            document.getElementById('e_dateIssued').value     = item.si_dateIssued      ?? '';
-            document.getElementById('e_dateReceived').value   = item.si_dateReceived    ?? '';
-            document.getElementById('e_status').value         = item.si_status          ?? '';
-            document.getElementById('e_propertyType').value   = item.si_propertyType    ?? '';
-            document.getElementById('e_fundCluster').value    = item.si_fundCluster     ?? '';
-            document.getElementById('e_notes').value          = item.si_notes           ?? '';
+            document.getElementById('e_si_id').value           = item.si_id              ?? '';
+            document.getElementById('e_propertyNo').value      = item.si_propertyNo      ?? '';
+            document.getElementById('e_serialNo').value        = item.si_serialNo        ?? '';
+            document.getElementById('e_icsNo').value           = item.si_icsNo           ?? '';
+            document.getElementById('e_item').value            = item.si_item            ?? '';
+            document.getElementById('e_description').value     = item.si_description     ?? '';
+            document.getElementById('e_uMeasurement').value    = item.si_uMeasurement    ?? '';
+            document.getElementById('e_uValue').value          = item.si_uValue          ?? '';
+            document.getElementById('e_propertyCardNo').value  = item.si_propertyCardNo  ?? '';
+            document.getElementById('e_physicalCountNo').value = item.si_physicalCountNo ?? '';
+            document.getElementById('e_SOQuantity').value      = item.si_SOQuantity      ?? '';
+            document.getElementById('e_SOValue').value         = item.si_SOValue         ?? '';
+            document.getElementById('e_issuedBy').value        = item.si_issuedBy        ?? '';
+            document.getElementById('e_dateIssued').value      = item.si_dateIssued      ?? '';
+            document.getElementById('e_dateReceived').value    = item.si_dateReceived    ?? '';
+            document.getElementById('e_status').value          = item.si_status          ?? '';
+            document.getElementById('e_propertyType').value    = item.si_propertyType    ?? '';
+            document.getElementById('e_fundCluster').value     = item.si_fundCluster     ?? '';
+            document.getElementById('e_notes').value           = item.si_notes           ?? '';
 
             new bootstrap.Modal(document.getElementById('editSchoolItemModal')).show();
         })
@@ -632,8 +678,8 @@ document.getElementById('updateSchoolItemBtn').addEventListener('click', functio
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
+    bindFilters();
     loadSchoolItems();
-    document.getElementById('searchInput').addEventListener('input', applyFilters);
 });
 
 </script>
