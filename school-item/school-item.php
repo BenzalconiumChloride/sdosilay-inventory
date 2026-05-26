@@ -6,11 +6,20 @@
 
     <!-- Table -->
     <div class="table-container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
             <h5 class="mb-0"><i class="fas fa-list"></i> School Items</h5>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                <i class="fas fa-plus"></i> Add Item
-            </button>
+            <div class="d-flex gap-2 flex-grow-1 justify-content-md-end">
+                <div class="input-group" style="max-width: 400px;">
+                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Search item, property no, serial no, status...">
+                </div>
+                <button class="btn btn-success text-nowrap" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel"></i> Export
+                </button>
+                <button class="btn btn-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <i class="fas fa-plus"></i> Add Item
+                </button>
+            </div>
         </div>
         <div class="table-responsive">
             <table class="table table-bordered table-hover align-middle" id="schoolItemsTable">
@@ -343,6 +352,10 @@ function getStatusBadge(status) {
     return `<span class="badge bg-${color}">${status ?? '—'}</span>`;
 }
 
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let allSchoolItems = [];
+let currentFilteredItems = [];
+
 // ─── LOAD & RENDER ────────────────────────────────────────────────────────────
 
 function loadSchoolItems() {
@@ -353,7 +366,8 @@ function loadSchoolItems() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                renderSchoolItems(data.data);
+                allSchoolItems = data.data;
+                applyFilters();
             } else {
                 tbody.innerHTML = `<tr><td colspan="20" class="text-center text-danger py-3">${data.message}</td></tr>`;
             }
@@ -362,6 +376,79 @@ function loadSchoolItems() {
             console.error('Fetch School Items Error:', error);
             tbody.innerHTML = `<tr><td colspan="20" class="text-center text-danger py-3">Failed to load items.</td></tr>`;
         });
+}
+
+function applyFilters() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    
+    currentFilteredItems = allSchoolItems.filter(item => {
+        if (!query) return true;
+        
+        const itemName = (item.si_item || '').toLowerCase();
+        const propertyNo = (item.si_propertyNo || '').toLowerCase();
+        const serialNo = (item.si_serialNo || '').toLowerCase();
+        const status = (item.si_status || '').toLowerCase();
+        const propertyType = (item.si_propertyType || '').toLowerCase();
+        
+        return itemName.includes(query) || 
+               propertyNo.includes(query) || 
+               serialNo.includes(query) || 
+               status.includes(query) || 
+               propertyType.includes(query);
+    });
+    
+    renderSchoolItems(currentFilteredItems);
+}
+
+// ─── EXPORT TO EXCEL ──────────────────────────────────────────────────────────
+
+function exportToExcel() {
+    if (currentFilteredItems.length === 0) {
+        alert("No items to export.");
+        return;
+    }
+
+    const headers = [
+        "Item Name", "Description", "Property No.", "Serial No.", "ICS No.", 
+        "Property Type", "Fund Cluster", "Unit of Measure", "Unit Value", 
+        "Property Card No.", "Physical Count No.", "Shortage/Overage Quantity", "Shortage/Overage Value", 
+        "Issued By", "Date Issued", "Date Received", "Status", "Notes"
+    ];
+
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+
+    for (const item of currentFilteredItems) {
+        const values = [
+            item.si_item, item.si_description, item.si_propertyNo, item.si_serialNo, item.si_icsNo,
+            item.si_propertyType, item.si_fundCluster, item.si_uMeasurement, item.si_uValue,
+            item.si_propertyCardNo, item.si_physicalCountNo, item.si_SOQuantity, item.si_SOValue,
+            item.si_issuedBy, item.si_dateIssued, item.si_dateReceived, item.si_status, item.si_notes
+        ];
+
+        // Escape comma, quotes, and newlines
+        const escapedValues = values.map(val => {
+            if (val === null || val === undefined) return '""';
+            let str = String(val);
+            if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+                str = '"' + str.replace(/"/g, '""') + '"';
+            }
+            return str;
+        });
+
+        csvRows.push(escapedValues.join(','));
+    }
+
+    const csvData = csvRows.join('\r\n');
+    const blob = new Blob(["\uFEFF" + csvData], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "school_items_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function renderSchoolItems(items) {
@@ -544,6 +631,9 @@ document.getElementById('updateSchoolItemBtn').addEventListener('click', functio
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
-document.addEventListener('DOMContentLoaded', loadSchoolItems);
+document.addEventListener('DOMContentLoaded', () => {
+    loadSchoolItems();
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+});
 
 </script>
