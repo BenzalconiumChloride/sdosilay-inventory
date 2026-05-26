@@ -2,39 +2,23 @@
 
 require_once '../../global-library/database.php';
 
-
-
-if (isset($_GET['school-items'])) {
-
+if (isset($_GET['view']) && $_GET['view'] === 'school-items' && isset($_GET['s_id'])) {
     $view = 'school-items';
-
 } else {
-
-    $view = '';
-
+    $view = 'schools';
 }
-
-
-
-$currentPage = 'school-items';
 
 switch ($view) {
     case 'school-items':
-        $content   = 'school-items.php';
+        $content   = 'school-items-view.php';
         $pageTitle = 'School Items';
         break;
 
     default:
-
         $content   = 'school-items.php';
-
-        $pageTitle = 'School Items';
-
+        $pageTitle = 'Schools';
         break;
-
 }
-
-
 
 require_once '../include/template.php';
 

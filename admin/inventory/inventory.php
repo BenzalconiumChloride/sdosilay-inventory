@@ -7,11 +7,35 @@
             <i class="bi bi-plus-lg"></i> Add Item
         </button>
     </div>
+
+    <!-- ─── FILTERS ─────────────────────────────────────────────────────────── -->
+    <div class="row g-2 mb-3">
+        <div class="col-md-2">
+            <input type="text" id="filterArticle" class="form-control form-control-sm" placeholder="Article / Equipment">
+        </div>
+        <div class="col-md-2">
+            <input type="text" id="filterPropertyNo" class="form-control form-control-sm" placeholder="Property Number">
+        </div>
+        <div class="col-md-2">
+            <input type="text" id="filterSerialNo" class="form-control form-control-sm" placeholder="Serial Number">
+        </div>
+        <div class="col-md-2">
+            <input type="text" id="filterIcsNo" class="form-control form-control-sm" placeholder="ICS Number">
+        </div>
+        <div class="col-md-2">
+            <input type="text" id="filterFundCluster" class="form-control form-control-sm" placeholder="Fund Cluster">
+        </div>
+        <div class="col-md-2">
+            <input type="text" id="filterPropertyType" class="form-control form-control-sm" placeholder="Property Type">
+        </div>
+    </div>
+    <!-- ──────────────────────────────────────────────────────────────────────── -->
+
     <div class="iatao-table-container">
         <table class="iatao-table">
             <thead>
                 <tr>
-                    <th rowspan="2" style="width:80px;">ITEM/ EQUIPMENT</th>
+                    <th rowspan="2" style="width:80px;">ARTICLE</th>
                     <th rowspan="2" style="min-width:200px;">DESCRIPTION</th>
                     <th rowspan="2" style="width:120px;">PROPERTY NUMBER</th>
                     <th rowspan="2" style="width:65px;">SERIAL NUMBER</th>
@@ -87,7 +111,7 @@
 
                     <div class="row mb-3">
                         <div class="col-4">
-                            <label for="i_item" class="form-label">Item Name *</label>
+                            <label for="i_item" class="form-label">Article *</label>
                             <input type="text" class="form-control" id="i_item" name="i_item" required placeholder="item name">
                         </div>
                         <div class="col-8">
@@ -167,6 +191,8 @@
                             <label for="i_status" class="form-label">Status</label>
                             <select class="form-control" id="i_status" name="i_status">
                                 <option value="">Select Status</option>
+                                <option value="New">New</option>
+                                <option value="Updating">Updating</option>
                                 <option value="serviceable">Serviceable</option>
                                 <option value="for repair">For Repair</option>
                                 <option value="unserviceable">Unserviceable</option>
@@ -314,6 +340,8 @@
                             <label for="e_status" class="form-label">Status</label>
                             <select class="form-control" id="e_status" name="e_status">
                                 <option value="">Select Status</option>
+                                <option value="New">New</option>
+                                <option value="Updating">Updating</option>
                                 <option value="serviceable">Serviceable</option>
                                 <option value="for repair">For Repair</option>
                                 <option value="unserviceable">Unserviceable</option>
@@ -340,6 +368,10 @@
 </div>
 
 <script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+
+let allItems = [];   // master copy; never mutated by filtering
+
 // ─── LOAD & RENDER ITEMS ────────────────────────────────────────────────────
 
 function loadItems() {
@@ -350,7 +382,8 @@ function loadItems() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                renderItems(data.data);
+                allItems = data.data;         // cache full list
+                applyFilters();               // render (with any active filters)
             } else {
                 tbody.innerHTML = `<tr><td colspan="22" class="text-center text-danger py-3">${data.message}</td></tr>`;
             }
@@ -360,6 +393,46 @@ function loadItems() {
             tbody.innerHTML = `<tr><td colspan="22" class="text-center text-danger py-3">Failed to load items.</td></tr>`;
         });
 }
+
+// ─── FILTER ──────────────────────────────────────────────────────────────────
+
+function applyFilters() {
+    const article      = document.getElementById('filterArticle').value.trim().toLowerCase();
+    const propertyNo   = document.getElementById('filterPropertyNo').value.trim().toLowerCase();
+    const serialNo     = document.getElementById('filterSerialNo').value.trim().toLowerCase();
+    const icsNo        = document.getElementById('filterIcsNo').value.trim().toLowerCase();
+    const fundCluster  = document.getElementById('filterFundCluster').value.trim().toLowerCase();
+    const propertyType = document.getElementById('filterPropertyType').value.trim().toLowerCase();
+
+    const filtered = allItems.filter(item => {
+        return (
+            (!article      || (item.i_item         ?? '').toLowerCase().includes(article))      &&
+            (!propertyNo   || (item.i_propertyNo   ?? '').toLowerCase().includes(propertyNo))   &&
+            (!serialNo     || (item.i_serialNo     ?? '').toLowerCase().includes(serialNo))     &&
+            (!icsNo        || (item.i_icsNo        ?? '').toLowerCase().includes(icsNo))        &&
+            (!fundCluster  || (item.i_fundCluster  ?? '').toLowerCase().includes(fundCluster))  &&
+            (!propertyType || (item.i_propertyType ?? '').toLowerCase().includes(propertyType))
+        );
+    });
+
+    renderItems(filtered);
+}
+
+function bindFilters() {
+    const ids = [
+        'filterArticle',
+        'filterPropertyNo',
+        'filterSerialNo',
+        'filterIcsNo',
+        'filterFundCluster',
+        'filterPropertyType'
+    ];
+    ids.forEach(id => {
+        document.getElementById(id).addEventListener('input', applyFilters);
+    });
+}
+
+// ─── RENDER ITEMS ────────────────────────────────────────────────────────────
 
 function renderItems(items) {
     const tbody = document.getElementById('itemsTableBody');
@@ -455,7 +528,6 @@ document.getElementById('saveItemBtn').addEventListener('click', function () {
     });
 });
 
-// ─── PLACEHOLDER HANDLERS ────────────────────────────────────────────────────
 // ─── EDIT ITEM ───────────────────────────────────────────────────────────────
 
 function editItem(id) {
@@ -552,11 +624,13 @@ document.getElementById('updateItemBtn').addEventListener('click', function () {
 });
 
 function deleteItem(id) {
-    // TODO: confirm and call delete_item.php
     console.log('Delete item:', id);
 }
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 
-document.addEventListener('DOMContentLoaded', loadItems);
+document.addEventListener('DOMContentLoaded', () => {
+    bindFilters();
+    loadItems();
+});
 </script>
