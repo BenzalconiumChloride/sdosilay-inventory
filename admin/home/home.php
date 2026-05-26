@@ -106,7 +106,7 @@
                         <table class="table table-hover mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Item Name</th>
+                                    <th>Article</th>
                                     <th>Property No.</th>
                                     <th>Type</th>
                                     <th>Status</th>
